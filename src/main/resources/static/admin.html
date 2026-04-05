@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Quản lý E-Menu</title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Login Section -->
+        <div id="loginSection" class="section login-page">
+            <div class="login-overlay"></div>
+            <div class="login-form-wrapper">
+                <div class="login-form">
+                    <div class="restaurant-header">
+                        <h2 class="restaurant-name">THE ATELIER</h2>
+                        <p class="restaurant-subtitle">Pizzeria</p>
+                    </div>
+
+                    <h1 class="login-title">ĐĂNG NHẬP</h1>
+
+                    <div class="form-group">
+                        <input 
+                            type="text" 
+                            id="adminUsername" 
+                            class="form-input"
+                            placeholder="Email/ số điện thoại"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <input 
+                            type="password" 
+                            id="adminPassword" 
+                            class="form-input"
+                            placeholder="Mật khẩu"
+                            required>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="rememberMe">
+                            <span>Quên mật khẩu?</span>
+                        </label>
+                    </div>
+
+                    <button onclick="adminLogin()" class="login-btn">Đăng Nhập</button>
+
+                    <div class="login-footer">
+                        <p>Bạn chưa có tài khoản? <a href="#" class="signup-link">Đăng ký Ngay</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="dashboardSection" class="section dashboard-container active">
+            <!-- Header -->
+            <header class="dashboard-header">
+                <div class="header-left">
+                    <h1 class="restaurant-logo">THE ATELIER</h1>
+                    <p class="restaurant-subtitle-header">Pizzeria</p>
+                </div>
+                
+                <nav class="header-nav">
+                    <a href="#" class="nav-link active" onclick="switchTab('menu'); return false;">THỰC ĐƠN</a>
+                    <span class="nav-separator">|</span>
+                    <a href="#" class="nav-link" onclick="switchTab('orders'); return false;">ĐƠN HÀNG <span id="newOrderBadge" class="badge" style="display:none;">!</span></a>
+                    <span class="nav-separator">|</span>
+                    <a href="#" class="nav-link" onclick="switchTab('tracking'); return false;">THEO DÕI ĐƠN</a>
+                    <span class="nav-separator">|</span>
+                    <a href="#" class="nav-link" onclick="switchTab('stats'); return false;">DOANH THU</a>
+                </nav>
+
+                <div class="header-right">
+                    <button class="lang-btn">🇻🇳 VN</button>
+                    <button class="logout-btn" onclick="adminLogout()">Đăng xuất</button>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <div class="dashboard-content">
+                <!-- Sidebar -->
+                <aside class="sidebar">
+                    <div class="sidebar-section">
+                        <h3 class="sidebar-title">QUẢN LÝ MÓN ĂN</h3>
+                        <button class="sidebar-btn add-category-btn" onclick="openAddDishForm()">+ Thêm Danh Mục</button>
+                        <button class="sidebar-btn add-dish-btn" onclick="openAddDishForm()">+ Thêm Món</button>
+                    </div>
+
+                    <div class="sidebar-menu">
+                        <button class="menu-item active" onclick="filterByCategory('Tất cả')">TẤT CẢ MÓN ĂN</button>
+                        <button class="menu-item" onclick="filterByCategory('Pizza')">PIZZA</button>
+                        <button class="menu-item" onclick="filterByCategory('Salad')">SALAD</button>
+                        <button class="menu-item" onclick="filterByCategory('Mỳ')">MỲ</button>
+                        <button class="menu-item" onclick="filterByCategory('Món Trắng Miễng')">MÓN TRẮNG MIỄNG</button>
+                        <button class="menu-item" onclick="filterByCategory('Nước Uống')">NƯỚC UỐNG</button>
+                    </div>
+                </aside>
+
+                <!-- Main Area -->
+                <main class="main-content">
+                    <!-- Menu Tab -->
+                    <div id="menuTab" class="tab-content active">
+                        <div class="tab-header">
+                            <div class="tab-title">
+                                <h2>THỰC ĐƠN</h2>
+                            </div>
+                            <div class="tab-actions">
+                                <input type="text" id="searchInput" class="search-box" placeholder="Tìm kiếm..." onkeyup="searchDishes()">
+                                <button class="clear-all-btn">Xóa Tất Cả</button>
+                            </div>
+                        </div>
+
+                        <div id="dishesContainer" class="dishes-grid">
+                            <!-- Dishes will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Orders Tab -->
+                    <div id="ordersTab" class="tab-content">
+                        <div class="orders-header">
+                            <h2>QUẢN LÝ ĐƠN HÀNG</h2>
+                        </div>
+                        <div class="orders-filter">
+                            <button class="filter-btn active" onclick="filterOrders('CONFIRMED')">Chờ xác nhận</button>
+                            <button class="filter-btn" onclick="filterOrders('PREPARING')">Đang thực hiện</button>
+                            <button class="filter-btn" onclick="filterOrders('READY')">Sẵn sàng phục vụ</button>
+                            <button class="filter-btn" onclick="filterOrders('PAID')">Đã thanh toán</button>
+                        </div>
+                        <div id="ordersContainer" class="orders-grid">
+                            <!-- Orders will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Stats Tab -->
+                    <div id="statsTab" class="tab-content">
+                        <div class="stats-header">
+                            <h2>DOANH THU</h2>
+                        </div>
+                        <div class="stats-container">
+                            <p style="color: #999; padding: 40px; text-align: center;">Tính năng doanh thu sẽ sớm được cập nhật</p>
+                        </div>
+                    </div>
+
+                    <!-- Tracking Tab -->
+                    <div id="trackingTab" class="tab-content">
+                        <div class="tracking-header">
+                            <h2>📍 THEO DÕI ĐƠN HÀNG</h2>
+                        </div>
+                        <div class="tracking-filters">
+                            <input type="text" id="trackingOrderId" class="search-box" placeholder="Nhập số đơn hàng hoặc SĐT khách...">
+                            <button onclick="searchTrackingOrders()" class="search-btn">Tìm kiếm</button>
+                        </div>
+                        <div id="trackingContainer" class="tracking-grid">
+                            <!-- Tracking orders will be loaded here -->
+                        </div>
+                    </div>
+                </main>
+            </div>
+
+            <!-- Add Dish Modal -->
+            <div id="addDishModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="formTitle">Thêm món ăn</h2>
+                        <button class="close-btn" onclick="closeAddDishForm()">&times;</button>
+                    </div>
+                    <form id="dishForm">
+                        <input type="hidden" id="dishId">
+                        
+                        <!-- Image Upload Section -->
+                        <div class="image-upload-section">
+                            <label for="dishImage" class="image-upload-label">📷 Tải lên ảnh</label>
+                            <input type="file" id="dishImage" accept="image/*" onchange="handleImageUpload(event)">
+                            <div id="imagePreview" class="image-preview">
+                                <span style="color: #999;">Chưa có ảnh</span>
+                            </div>
+                            <input type="hidden" id="dishImageUrl" placeholder="URL ảnh">
+                        </div>
+
+                        <input type="text" id="dishName" placeholder="Tên món" required>
+                        <textarea id="dishDescription" placeholder="Mô tả"></textarea>
+                        <input type="number" id="dishPrice" placeholder="Giá" required>
+                        <select id="dishCategory" required>
+                            <option value="">Chọn danh mục</option>
+                            <option value="Pizza">Pizza</option>
+                            <option value="Salad">Salad</option>
+                            <option value="Mỳ">Mỳ</option>
+                            <option value="Món Trắng Miễng">Món Trắng Miễng</option>
+                            <option value="Nước Uống">Nước Uống</option>
+                        </select>
+                        <label>
+                            <input type="checkbox" id="dishAvailable" checked> Có sẵn
+                        </label>
+                        <button type="button" onclick="saveDish()" class="save-btn">Lưu</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/admin.js?t=20260405"></script>
+</body>
+</html>
