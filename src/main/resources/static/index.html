@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Menu - Gọi Món Trực Tuyến</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Customer Registration -->
+    <div id="registerSection" class="section active">
+        <div class="register-overlay"></div>
+        <div class="register-wrapper">
+            <div class="register-form">
+                <div class="restaurant-header">
+                    <h2 class="restaurant-name">THE ATELIER</h2>
+                    <p class="restaurant-subtitle">Pizzeria</p>
+                </div>
+
+                <h1 class="register-title">SƢ DỤNG MENU</h1>
+
+                <div class="form-group">
+                    <input 
+                        type="text" 
+                        id="customerName" 
+                        class="form-input"
+                        placeholder="Tên của bạn"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <input 
+                        type="tel" 
+                        id="customerPhone" 
+                        class="form-input"
+                        placeholder="Số điện thoại"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <input 
+                        type="text" 
+                        id="tableNumber" 
+                        class="form-input"
+                        placeholder="Số bàn (tuỳ chọn)">
+                </div>
+
+                <button onclick="registerCustomer()" class="register-btn">Bắt đầu gọi món</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu Section -->
+    <div id="menuSection" class="section">
+        <!-- Header -->
+        <header class="menu-header">
+            <div class="header-left">
+                <h1 class="restaurant-logo">THE ATELIER</h1>
+                <p class="restaurant-subtitle-header">Pizzeria</p>
+            </div>
+            
+            <nav class="header-nav">
+                <a href="#" class="nav-link active">THỰC ĐƠN</a>
+                <span class="nav-separator">|</span>
+                <a href="#" class="nav-link" onclick="try { openCart(); } catch(e) { alert('Lỗi: ' + e.message); } return false;">GIỎ HÀNG</a>
+                <span class="nav-separator">|</span>
+                <a href="#" class="nav-link" onclick="try { if(typeof openOrderTracking === 'function') { openOrderTracking(); } else { alert('Lỗi: Hàm theo dõi đơn không được tải. Vui lòng làm mới trang (F5).'); } } catch(e) { alert('Lỗi: ' + e.message); } return false;">THEO DÕI ĐƠN</a>
+                <span class="nav-separator">|</span>
+                <a href="#" class="nav-link">HỖ TRỢ</a>
+            </nav>
+
+            <div class="header-right">
+                <button class="lang-btn">🇻🇳 VN</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="menu-content">
+            <!-- Sidebar -->
+            <aside class="menu-sidebar">
+                <div class="sidebar-header">
+                    <h3 class="sidebar-title">TÌM KIẾM...</h3>
+                    <input type="text" id="searchInput" class="sidebar-search" placeholder="Tìm kiếm" onkeyup="searchDishes()">
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="sidebar-section-title">DANH MỤC MÓN</h3>
+                    <div class="category-list">
+                        <button class="category-btn active" onclick="filterByCategory('Tất cả')">DANH MỤC CHÍNH</button>
+                        <button class="category-btn" onclick="filterByCategory('Pizza')">PIZZA</button>
+                        <button class="category-btn" onclick="filterByCategory('Salad')">SALAD</button>
+                        <button class="category-btn" onclick="filterByCategory('Mỳ')">MỲ</button>
+                        <button class="category-btn" onclick="filterByCategory('Món Trắng Miễng')">MÓN TRẮNG MIỄNG</button>
+                        <button class="category-btn" onclick="filterByCategory('Nước Uống')">NƯỚC UỐNG</button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Area -->
+            <main class="menu-main">
+                <div class="menu-header-actions">
+                    <h2 class="menu-title">MENU</h2>
+                    <button onclick="openCart()" class="cart-link">🛒 GIỎ HÀNG (<span id="cartCount">0</span>)</button>
+                </div>
+
+                <div id="dishesContainer" class="dishes-grid">
+                    <!-- Dishes will be loaded here -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Dish Detail Modal -->
+    <div id="dishDetailModal" class="modal">
+        <div class="modal-content dish-detail-content">
+            <button class="close-btn" onclick="closeDishDetail()">&times;</button>
+            
+            <div class="dish-detail-layout">
+                <!-- Left: Image -->
+                <div class="dish-detail-image-section">
+                    <div class="dish-detail-image" id="detailDishImage">🍕</div>
+                </div>
+
+                <!-- Right: Details -->
+                <div class="dish-detail-info">
+                    <h2 class="detail-dish-name" id="detailDishName">Tên món ăn</h2>
+                    <p class="detail-dish-description" id="detailDishDescription">Mô tả chi tiết về món ăn</p>
+
+                    <!-- Sizes -->
+                    <div class="detail-section">
+                        <h3 class="section-title">KÍCH THƯỚC</h3>
+                        <div class="sizes-grid" id="detailSizes">
+                            <!-- Sizes will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Toppings -->
+                    <div class="detail-section">
+                        <h3 class="section-title">TOPPING THƯỜNG (+20.000)</h3>
+                        <div class="toppings-list" id="detailToppings">
+                            <!-- Toppings will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Options -->
+                    <div class="detail-section">
+                        <h3 class="section-title">TOPPING ĐẶC BIỆT (+40.000)</h3>
+                        <div class="options-list" id="detailOptions">
+                            <!-- Options will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Bottom: Price and Add to Cart -->
+                    <div class="dish-detail-footer">
+                        <div class="detail-price-section">
+                            <span class="detail-price-label">Giá:</span>
+                            <span class="detail-price" id="detailPrice">0đ</span>
+                        </div>
+                        <div class="detail-quantity-control">
+                            <button class="qty-btn" onclick="decreaseDetailQuantity()">−</button>
+                            <input type="number" id="detailQuantity" class="qty-input" value="1" min="1" max="10">
+                            <button class="qty-btn" onclick="increaseDetailQuantity()">+</button>
+                        </div>
+                        <button class="add-to-cart-btn detail-add-btn" onclick="addDetailToCart()">Thêm vào giỏ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Giỏ hàng</h2>
+                <button class="close-btn" onclick="closeCart()">&times;</button>
+            </div>
+            <div id="cartItems" class="cart-items">
+                <!-- Cart items will be displayed here -->
+            </div>
+            <div class="cart-summary">
+                <p>Tổng tiền: <strong id="totalPrice">0 đ</strong></p>
+                <button onclick="confirmOrder()" class="confirm-btn">Xác nhận gọi món</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmed Orders Section -->
+    <div id="confirmedSection" class="section">
+        <div class="header">
+            <h2>✅ Đơn hàng đã gọi</h2>
+            <button onclick="backToMenu()">← Quay lại thực đơn</button>
+        </div>
+        <div id="confirmedOrders" class="orders-list">
+            <!-- Confirmed orders will be displayed here -->
+        </div>
+    </div>
+
+    <!-- Payment Section -->
+    <div id="paymentSection" class="section">
+        <div class="payment-container">
+            <div class="bill-wrapper">
+                <div class="bill-header">
+                    <p class="bill-restaurant">BẠN ỐI</p>
+                    <h1 class="bill-title">THE ATELIER</h1>
+                    <p class="bill-subtitle">Pizzeria Phố Thái Thanh Toàn</p>
+                </div>
+
+                <div class="bill-info">
+                    <div class="info-row">
+                        <span class="info-label">Ngày:</span>
+                        <span id="billDate" class="info-value">--/--/----</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Giờ:</span>
+                        <span id="billTime" class="info-value">--:--</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">SHD:</span>
+                        <span id="billOrderId" class="info-value">AB123456789</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Khách:</span>
+                        <span id="billCustomerName" class="info-value">--</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">SĐT:</span>
+                        <span id="billCustomerPhone" class="info-value">--</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Gọi vào:</span>
+                        <span id="billTableNumber" class="info-value">--</span>
+                    </div>
+                </div>
+
+                <div class="bill-items-table">
+                    <div class="table-header">
+                        <div class="col-name">Tên Món</div>
+                        <div class="col-price">Đơn Giá</div>
+                        <div class="col-qty">Số Lượng</div>
+                        <div class="col-total">Thành Tiền</div>
+                    </div>
+                    <div id="billItemsList" class="table-body">
+                        <!-- Bill items will be displayed here -->
+                    </div>
+                </div>
+
+                <div class="bill-totals">
+                    <div class="total-row">
+                        <span class="total-label">Tạm tính:</span>
+                        <span id="billSubtotal" class="total-value">0 VND</span>
+                    </div>
+                    <div class="total-row">
+                        <span class="total-label">VAT Bhc:</span>
+                        <span class="total-value">0 VND</span>
+                    </div>
+                    <div class="total-row">
+                        <span class="total-label">Giảm giá:</span>
+                        <span class="total-value">0 VND</span>
+                    </div>
+                    <div class="total-row highlighted">
+                        <span class="total-label">Thành tiền:</span>
+                        <span id="billTotal" class="total-value">0 VND</span>
+                    </div>
+                </div>
+
+                <div class="payment-actions">
+                    <button onclick="backToMenu()" class="btn-secondary">← Quay lại</button>
+                    <button onclick="processPayment('CASH')" class="btn-payment">Thanh Toán</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Tracking Section -->
+    <div id="orderTrackingSection" class="section">
+        <!-- Header -->
+        <header class="tracking-header">
+            <div class="header-left">
+                <h1 class="restaurant-logo">THE ATELIER</h1>
+                <p class="restaurant-subtitle-header">Pizzeria</p>
+            </div>
+            
+            <nav class="header-nav">
+                <a href="#" class="nav-link" onclick="backToMenu(); return false;">← THỰC ĐƠN</a>
+                <span class="nav-separator">|</span>
+                <a href="#" class="nav-link active">THEO DÕI ĐƠN</a>
+                <span class="nav-separator">|</span>
+                <a href="#" class="nav-link" onclick="viewBill(currentOrder?.id); return false;">THANH TOÁN</a>
+                <span class="nav-separator">|</span>
+                <a href="#" class="nav-link">HỖ TRỢ</a>
+            </nav>
+
+            <div class="header-right">
+                <button class="lang-btn">🇻🇳 VN</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="tracking-content">
+            <!-- Sidebar - Menu Style -->
+            <aside class="tracking-sidebar">
+                <!-- Search -->
+                <div class="sidebar-header">
+                    <h3 class="sidebar-title">TÌM KIẾM</h3>
+                    <input type="text" id="trackingSearchInput" class="sidebar-search" placeholder="Tìm đơn hàng..." onkeyup="filterTrackingOrders()">
+                </div>
+
+                <!-- Status Categories -->
+                <div class="sidebar-section">
+                    <h3 class="sidebar-section-title">TRẠNG THÁI ĐƠN</h3>
+                    <div class="category-list">
+                        <button class="category-btn active" onclick="filterByTrackingStatus('ALL')">TẤT CẢ ĐƠN</button>
+                        <button class="category-btn" onclick="filterByTrackingStatus('PENDING')">CHỜ XÁC NHẬN</button>
+                        <button class="category-btn" onclick="filterByTrackingStatus('CONFIRMED')">ĐÃ XÁC NHẬN</button>
+                        <button class="category-btn" onclick="filterByTrackingStatus('PREPARING')">ĐANG CHUẨN BỊ</button>
+                        <button class="category-btn" onclick="filterByTrackingStatus('READY')">SẴN SÀNG LẤY</button>
+                        <button class="category-btn" onclick="filterByTrackingStatus('COMPLETED')">HOÀN THÀNH</button>
+                    </div>
+                </div>
+
+                <!-- Order Info -->
+                <div class="sidebar-section">
+                    <h3 class="sidebar-section-title">THÔNG TIN ĐƠN</h3>
+                    <div class="status-item">
+                        <span class="status-label">Đơn hàng:</span>
+                        <span class="status-value" id="orderIdDisplay">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Trạng thái:</span>
+                        <span class="status-value" id="orderStatusDisplay">Chờ xác nhận</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Tổng tiền:</span>
+                        <span class="status-value" id="orderTotalDisplay">0đ</span>
+                    </div>
+                </div>
+
+                <!-- Refresh -->
+                <div class="sidebar-section">
+                    <button onclick="location.reload()" class="refresh-btn">⟳ Làm mới</button>
+                </div>
+            </aside>
+
+            <!-- Main Tracking Area - Grid Style -->
+            <main class="tracking-main">
+                <div class="tracking-tab-header">
+                    <h2 class="tab-title">THEO DÕI ĐƠN HÀNG</h2>
+                    <div class="tab-actions">
+                        <button class="action-btn" onclick="loadOrderTracking()">🔄 Cập nhật</button>
+                    </div>
+                </div>
+
+                <!-- Grid for Selected Items -->
+                <div class="tracking-section">
+                    <h3 class="tracking-section-title">MÓN ĐÃ CHỌN</h3>
+                    <div id="trackingSelectedItems" class="tracking-grid">
+                        <!-- Selected items will be displayed here as cards -->
+                    </div>
+                </div>
+
+                <!-- Grid for Ordered Items -->
+                <div class="tracking-section">
+                    <h3 class="tracking-section-title">MÓN ĐÃ GỌI</h3>
+                    <div id="trackingOrderedItems" class="tracking-grid">
+                        <!-- Ordered items will be displayed here as cards -->
+                    </div>
+
+                    <div class="tracking-actions">
+                        <button onclick="backToMenu()" class="btn-order-more">← Gọi món</button>
+                        <button onclick="viewBill(currentOrder?.id)" class="btn-payment">Thanh Toán</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div id="orderDetailModal" class="modal">
+        <div class="modal-content order-detail-content">
+            <button class="close-btn" onclick="closeOrderDetail()">&times;</button>
+            
+            <div class="order-detail-layout">
+                <h2 class="order-detail-title" id="orderDetailTitle">Chi tiết đơn hàng</h2>
+                
+                <!-- Order Info -->
+                <div class="order-info-section">
+                    <div class="order-info-row">
+                        <span class="info-label">Mã đơn:</span>
+                        <span class="info-value" id="orderDetailId">-</span>
+                    </div>
+                    <div class="order-info-row">
+                        <span class="info-label">Trạng thái:</span>
+                        <span class="info-value" id="orderDetailStatus">-</span>
+                    </div>
+                    <div class="order-info-row">
+                        <span class="info-label">Số điện thoại:</span>
+                        <span class="info-value" id="orderDetailPhone">-</span>
+                    </div>
+                </div>
+
+                <!-- Order Items -->
+                <div class="order-items-section">
+                    <h3 class="section-title">DANH SÁCH MÓN</h3>
+                    <div id="orderDetailItems" class="order-items-list">
+                        <!-- Order items will be displayed here -->
+                    </div>
+                </div>
+
+                <!-- Total Price -->
+                <div class="order-total-section">
+                    <span class="total-label">Tổng cộng:</span>
+                    <span class="total-price" id="orderDetailTotal">0đ</span>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="order-action-buttons" style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button onclick="closeOrderDetail()" class="btn-secondary" style="flex: 1;">Đóng</button>
+                    <button onclick="payFromOrderDetail()" class="btn-payment" style="flex: 1;">Thanh Toán</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js?t=20260405"></script>
+</body>
+</html>
